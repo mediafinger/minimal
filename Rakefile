@@ -9,12 +9,12 @@ require_relative "config/application"
 Rails.application.load_tasks
 
 if %w(development test).include? Rails.env
-  # require "bundler/audit/task"
+  require "bundler/audit/task"
   require "rspec/core/rake_task"
   require "rubocop/rake_task"
 
   # setup task bundle:audit
-  # Bundler::Audit::Task.new
+  Bundler::Audit::Task.new
 
   # setup task rspec
   RSpec::Core::RakeTask.new(:rspec) do |t|
@@ -26,4 +26,7 @@ if %w(development test).include? Rails.env
 
   desc "Run rubocop and the specs"
   task ci: %w(rubocop rspec bundle:audit)
+
+  Rake::Task["default"].clear # to unset rspec as the default rake task (set by rspec-rails)
+  task default: :ci
 end
