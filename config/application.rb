@@ -1,5 +1,26 @@
 # frozen_string_literal: true
 
+# From the moment you require this file "config/application.rb"
+# the booting process goes like this:
+#
+#   1)  require "config/boot.rb" to setup load paths
+#    a)  custom: require "config/settings.rb" to make all ENV variables available under the Settings class
+#    b)  custom: require "config/features.rb" to make our Feature Flags available (not yet implemented)
+#    --> we require our custom classes so early on, to have them available everywhere directly
+#   2)  require railties and engines
+#    a)  require custom gems and classes
+#   3)  Define Rails.application as "class Minimal < Rails::Application"
+#   4)  Run config.before_configuration callbacks
+#    a)  configure generators and Middlewares
+#   5)  Load config/environments/RAILS_ENV.rb
+#   6)  Run config.before_initialize callbacks
+#   7)  Run Railtie#initializer defined by railties, engines and application.
+#       One by one, each engine sets up its load paths, routes and runs its config/initializers/* files.
+#   8)  Custom Railtie#initializers added by railties, engines and applications are executed
+#   9)  Build the middleware stack and run to_prepare callbacks
+#   10) Run config.before_eager_load and eager_load! if eager_load is true
+#   11) Run config.after_initialize callbacks
+
 require_relative "boot"
 
 # Make ENV variables available
@@ -26,6 +47,8 @@ Bundler.require(*Rails.groups)
 
 require "rack/requestid"
 
+require_relative File.expand_path("../lib/errors/middleware", __dir__)
+
 module Minimal
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -39,6 +62,9 @@ module Minimal
     config.time_zone = "Europe/Berlin"
 
     # Configure additional paths from which paths Zeitwerk should load files
+    # Zeitwerk autoloading, eager-loading and reloading
+    config.eager_load_paths << Rails.root.join("lib").to_s
+
     # list all available_locales
     config.i18n.available_locales = %i(en de)
     # set the default locale
@@ -72,9 +98,15 @@ module Minimal
       ::Rack::RequestID, include_response_header: true, overwrite: false
     )
 
+    # handle all thrown exceptions with proper logging and responding with JSON (or render views if no API)
+    config.middleware.insert_after(
+      ActionDispatch::RequestId,
+      ::Errors::Middleware
+    ) unless Settings.is?(:display_rails_error_page, true)
+
     # set rack-timeout, requests are being cut off when reaching the timeout
     config.middleware.insert_after(
-      ::Rack::RequestID,
+      ::Errors::Middleware, # we insert the Timeout after the Errors::Middleware to get properly formatted errors
       ::Rack::Timeout, service_timeout: Settings.rack_timeout.to_i # in seconds
     )
     Rack::Timeout::Logger.disable # we only log the errors, not the verbose status messages
