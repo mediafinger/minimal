@@ -1,0 +1,47 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest] # macos-latest => 'docker not found'
+        ruby: ['3.0'] # Due to https://github.com/actions/runner/issues/849, we have to use quotes
+
+    runs-on: ${{ matrix.os }}
+
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_DB: minimal_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+    - name: Setup test database
+      env:
+        RAILS_ENV: test
+        DATABASE_HOST: localhost
+        DATABASE_PORT: 5432
+        DATABASE_NAME: minimal_test
+        DATABASE_USERNAME: postgres
+        DATABASE_PASSWORD: postgres
+      run: |
+        bin/rails db:create
+        bin/rails db:migrate
+
+    - name: Run linters and test suite
+      run: bin/rails ci
