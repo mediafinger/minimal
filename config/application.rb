@@ -24,6 +24,8 @@ require "sprockets/railtie"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+require "rack/requestid"
+
 module Minimal
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -41,5 +43,21 @@ module Minimal
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Rack::RequestID ensures that every request has HTTP_X_REQUEST_ID set
+    # It needs to reside in the callchain before ActionDispatch::RequestId
+    # ActionDispatch::RequestId creates a request_id or uses HTTP_X_REQUEST_ID
+    # but it will not change the request header (only sets the response header)
+    config.middleware.insert_before(
+      ActionDispatch::RequestId,
+      ::Rack::RequestID, include_response_header: true, overwrite: false
+    )
+
+    # set rack-timeout, requests are being cut off when reaching the timeout
+    config.middleware.insert_after(
+      ::Rack::RequestID,
+      ::Rack::Timeout, service_timeout: Settings.rack_timeout.to_i # in seconds
+    )
+    Rack::Timeout::Logger.disable # we only log the errors, not the verbose status messages
   end
 end

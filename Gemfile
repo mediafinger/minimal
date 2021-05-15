@@ -3,17 +3,23 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+# this line is used by heroku and several CIs
 ruby "3.0.1"
 
+# only bundle the parts of Rails that are actually used
+# don't forget to update config/application.rb when you add a gem
+# to update the version run: `bundle update actionpack activemodel ... railties` as one command
 rails_version = "6.1.3"
 gem "actionpack", "~> #{rails_version}"
 gem "activemodel", "~> #{rails_version}"
 gem "activerecord", "~> #{rails_version}"
 gem "railties", "~> #{rails_version}"
 
-gem "pg", "~> 1.2"
-gem "puma", "~> 5.0"
-gem "sass-rails", ">= 6"
+gem "pg", "~> 1.2" # postgresql db adapter
+gem "puma", "~> 5.0" # web server
+gem "rack-requestid", "~> 0.2" # set a request_id in the middleware
+gem "rack-timeout", "~> 0.6", require: "rack/timeout/base" # set a custom timeout in the middleware
+gem "sass-rails", ">= 6" # to use Sass / SCSS
 
 group :development, :test do
   gem "amazing_print" # nicer formatted console output
