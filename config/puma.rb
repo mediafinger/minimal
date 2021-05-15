@@ -6,25 +6,23 @@
 # the maximum value specified for Puma. Default is set to 5 threads for minimum
 # and maximum; this matches the default thread size of Active Record.
 #
-max_threads_count = ENV.fetch("RAILS_MAX_THREADS", 5)
-min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { max_threads_count }
-threads min_threads_count, max_threads_count
+threads Settings.rails_min_threads.to_i, Settings.rails_max_threads.to_i
 
 # Specifies the `worker_timeout` threshold that Puma will use to wait before
 # terminating a worker in development environments.
 #
-worker_timeout 3600 if ENV.fetch("RAILS_ENV", "development") == "development"
+worker_timeout 3600 if Settings.rails_env == "development"
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 #
-port ENV.fetch("PORT", 3000)
+port Settings.port.to_i
 
 # Specifies the `environment` that Puma will run in.
 #
-environment ENV.fetch("RAILS_ENV", "development")
+environment Settings.rails_env
 
 # Specifies the `pidfile` that Puma will use.
-pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
+pidfile Settings.pidfile
 
 # Specifies the number of `workers` to boot in clustered mode.
 # Workers are forked web server processes. If using threads and workers together
@@ -32,7 +30,7 @@ pidfile ENV.fetch("PIDFILE", "tmp/pids/server.pid")
 # Workers do not work on JRuby or Windows (both of which do not support
 # processes).
 #
-# workers ENV.fetch("WEB_CONCURRENCY") { 2 }
+# workers Settings.web_concurrency.to_i
 
 # Use the `preload_app!` method when specifying a `workers` number.
 # This directive tells Puma to first boot the application and load code

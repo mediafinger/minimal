@@ -30,3 +30,6 @@
 
 # Ignore test output
 spec/examples.txt
+
+# Ignore local settings file (which might contain secrets)
+settings.local.rb

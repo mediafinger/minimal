@@ -2,6 +2,9 @@
 
 require_relative "boot"
 
+# Make ENV variables available
+require_relative "settings"
+
 require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
@@ -31,7 +34,9 @@ module Minimal
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    config.time_zone = "Europe/Berlin"
+
+    # Configure additional paths from which paths Zeitwerk should load files
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Don't generate system test files.
