@@ -11,9 +11,9 @@ gem "activemodel", "~> #{rails_version}"
 gem "activerecord", "~> #{rails_version}"
 gem "railties", "~> #{rails_version}"
 
+gem "pg", "~> 1.2"
 gem "puma", "~> 5.0"
 gem "sass-rails", ">= 6"
-gem "sqlite3", "~> 1.4"
 
 group :development, :test do
   gem "amazing_print" # nicer formatted console output

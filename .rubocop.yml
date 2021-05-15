@@ -9,6 +9,7 @@ AllCops:
   DisplayCopNames: true
   NewCops: enable # but feel free to disable them below
   Exclude:
+    - "db/**/*"
     - "**/bin/*"
     - "**/config.ru"
     - "**/vendor/**/*"
