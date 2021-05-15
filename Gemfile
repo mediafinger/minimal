@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -9,9 +11,9 @@ gem "activemodel", "~> #{rails_version}"
 gem "activerecord", "~> #{rails_version}"
 gem "railties", "~> #{rails_version}"
 
-gem "sqlite3", "~> 1.4"
 gem "puma", "~> 5.0"
 gem "sass-rails", ">= 6"
+gem "sqlite3", "~> 1.4"
 
 group :development, :test do
   gem "rspec-rails", "~> 5.0" # rspec test framework
