@@ -39,10 +39,29 @@ module Minimal
     config.time_zone = "Europe/Berlin"
 
     # Configure additional paths from which paths Zeitwerk should load files
-    # config.eager_load_paths << Rails.root.join("extras")
+    # list all available_locales
+    config.i18n.available_locales = %i(en de)
+    # set the default locale
+    config.i18n.default_locale = :en
+    # set the current locale
+    config.i18n.locale = :en
 
-    # Don't generate system test files.
-    config.generators.system_tests = nil
+    # don't generate all those files
+    config.generators do |g|
+      g.helper false
+      g.javascripts false
+      g.stylesheets = false
+      g.test_framework :rspec,
+                       fixtures: false,
+                       view_specs: false,
+                       helper_specs: false,
+                       routing_specs: false,
+                       controller_specs: false,
+                       request_specs: false
+      # g.fixture_replacement :factory_bot, dir: "spec/factories"
+      # g.factory_bot suffix: "factory"
+      g.system_tests = nil
+    end
 
     # Rack::RequestID ensures that every request has HTTP_X_REQUEST_ID set
     # It needs to reside in the callchain before ActionDispatch::RequestId
